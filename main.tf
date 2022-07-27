@@ -1,5 +1,15 @@
+terraform {
+  required_version = ">= 0.13"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "^4.0.0"
+    }
+  }
+}
+
 resource "google_compute_instance" "gce-instance" {
-  name = var.instance_name
+  name         = var.instance_name
   zone         = var.instance_zone
   machine_type = var.instance_type
 
@@ -12,9 +22,9 @@ resource "google_compute_instance" "gce-instance" {
   boot_disk {
     auto_delete = var.instance_boot_diskautodelete
     initialize_params {
-      image = var.instance_boot_sourceImage
-      type  = var.instance_boot_diskType
-      size  = var.instance_boot_diskSizeGb
+      image  = var.instance_boot_sourceImage
+      type   = var.instance_boot_diskType
+      size   = var.instance_boot_diskSizeGb
       labels = var.instance_boot_disklabels
     }
   }
@@ -44,14 +54,18 @@ resource "google_compute_instance" "gce-instance" {
     email  = var.instance_service_account_email
     scopes = var.instance_service_account_scopes
   }
+}
+
+resource "null_resource" "ansible_ssh_setup" {
+  count      = var.run_ansible_ssh ? 1 : 0
+  depends_on = [google_compute_instance.gce-instance]
 
   # ansible ssh keys transfer
-  ## use a 'global' connection block
   connection {
     type        = "ssh"
     host        = var.ansible_vm_instance_ip
     user        = var.ansible_vm_ssh_user
-    timeout     = "500s"
+    timeout     = "100s"
     private_key = file("${var.instance_ssh_key_path}${var.ansible_vm_ssh_priv_key_file}")
   }
 

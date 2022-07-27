@@ -28,7 +28,7 @@ variable "instance_boot_disklabels" {
   default = {}
 }
 variable "instance_boot_diskautodelete" {
-  default = true
+  default     = true
   description = "Whether the boot disk will be auto-deleted when the instance is deleted"
 }
 variable "instance_access_config" {
@@ -51,4 +51,7 @@ variable "ansible_vm_instance_ip" {
 variable "instance_labels" {
   description = " A map of key/value label pairs to assign to the instance."
   default     = {}
+}
+variable "run_ansible_ssh" {
+  default = false
 }
